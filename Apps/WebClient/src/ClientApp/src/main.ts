@@ -2,6 +2,7 @@ import "core-js/stable";
 import "bootstrap-vue/dist/bootstrap-vue.css";
 import "@/assets/scss/bcgov/bootstrap-theme.scss";
 import "@/plugins/registerComponentHooks";
+import "@/registerServiceWorker";
 
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { BBadge, BFormTag, BFormTags, BPopover } from "bootstrap-vue";
