@@ -167,6 +167,10 @@ export default class App extends Vue {
 
     private windowWidth = 0;
 
+    private get showAppDownload(): boolean {
+        return this.deferredPrompt !== null;
+    }
+
     constructor() {
         super();
         logger.debug(
@@ -243,15 +247,15 @@ export default class App extends Vue {
 
         <NavHeader />
         <b-row>
-            <b-alert v-if="deferredPrompt" color="info" dark class="text-left">
-                Get our free app. It won't take up space on your phone and also
-                works offline!
-
-                <b-button text @click="dismiss">Dismiss</b-button>
-                <b-button text @click="install">Install</b-button>
-            </b-alert>
             <NavSidebar class="no-print sticky-top vh-100" />
             <main class="col fill-height">
+                <div v-if="showAppDownload" class="border">
+                    Get our free app. It won't take up space on your phone and
+                    also works offline!
+
+                    <b-button text @click="dismiss">Dismiss</b-button>
+                    <b-button text @click="install">Install</b-button>
+                </div>
                 <ErrorCard
                     title="Whoops!"
                     description="An error occurred."
