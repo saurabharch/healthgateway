@@ -1,7 +1,7 @@
-const CompressionPlugin = require("compression-webpack-plugin");
+//const CompressionPlugin = require("compression-webpack-plugin");
 module.exports = {
     productionSourceMap: false,
-    lintOnSave: true,
+    lintOnSave: false,
     integrity: true,
     devServer: {
         overlay: {
@@ -11,7 +11,7 @@ module.exports = {
     },
     chainWebpack: (config) => {
         config.plugins.delete("split-manifest").delete("inline-manifest");
-        config.plugin("CompressionPlugin").use(CompressionPlugin);
+        //config.plugin("CompressionPlugin").use(CompressionPlugin);
         config.resolve.symlinks(false);
 
         /**
@@ -30,7 +30,7 @@ module.exports = {
         });
     },
     pwa: {
-        name: "My App",
+        name: "HG PWA Test",
         themeColor: "#4DBA87",
         msTileColor: "#000000",
         appleMobileWebAppCapable: "yes",

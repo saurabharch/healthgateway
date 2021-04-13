@@ -1,5 +1,5 @@
 {
-    "name": "pwa-test",
+    "name": "HG PWA Test",
     "short_name": "pwa-test",
     "theme_color": "#4DBA87",
     "icons": [
@@ -26,7 +26,8 @@
             "purpose": "maskable"
         }
     ],
-    "start_url": ".",
+    "start_url": "/timeline",
     "display": "standalone",
-    "background_color": "#000000"
+    "background_color": "#FF0000",
+    "prefer_related_applications": false
 }

@@ -137,6 +137,7 @@ import IdleComponent from "@/components/modal/idle.vue";
 import FooterComponent from "@/components/navmenu/navFooter.vue";
 import HeaderComponent from "@/components/navmenu/navHeader.vue";
 import SidebarComponent from "@/components/navmenu/sidebar.vue";
+import BeforeInstallPromptEvent from "@/models/beforeInstallPromptEvent";
 
 import ScreenWidth from "./constants/screenWidth";
 
@@ -182,16 +183,37 @@ export default class App extends Vue {
         }
     }
 
+    private deferredPrompt: BeforeInstallPromptEvent | null = null;
+
     private created() {
         this.windowWidth = window.innerWidth;
         this.$nextTick(() => {
             window.addEventListener("resize", this.onResize);
             this.onResize();
         });
+
+        window.addEventListener("beforeinstallprompt", (e) => {
+            e.preventDefault();
+            // Stash the event so it can be triggered later.
+            this.deferredPrompt = e as BeforeInstallPromptEvent;
+        });
+
+        window.addEventListener("appinstalled", () => {
+            this.deferredPrompt = null;
+        });
     }
 
     private beforeDestroy() {
         window.removeEventListener("resize", this.onResize);
+    }
+
+    private async dismiss() {
+        this.deferredPrompt = null;
+    }
+    private async install() {
+        if (this.deferredPrompt !== null) {
+            this.deferredPrompt.prompt();
+        }
     }
 
     private onResize() {
@@ -221,6 +243,13 @@ export default class App extends Vue {
 
         <NavHeader />
         <b-row>
+            <b-alert v-if="deferredPrompt" color="info" dark class="text-left">
+                Get our free app. It won't take up space on your phone and also
+                works offline!
+
+                <b-button text @click="dismiss">Dismiss</b-button>
+                <b-button text @click="install">Install</b-button>
+            </b-alert>
             <NavSidebar class="no-print sticky-top vh-100" />
             <main class="col fill-height">
                 <ErrorCard
