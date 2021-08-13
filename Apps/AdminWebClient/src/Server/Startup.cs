@@ -15,7 +15,7 @@
 //-------------------------------------------------------------------------
 namespace HealthGateway.AdminWebClient
 {
-    using System.IdentityModel.Tokens.Jwt;
+    using System;
     using System.Security.Claims;
     using System.Threading.Tasks;
     using HealthGateway.Admin.Server.Delegates;
@@ -84,7 +84,7 @@ namespace HealthGateway.AdminWebClient
 
             // Add services
             services.AddTransient<IConfigurationService, ConfigurationService>();
-            services.AddTransient<IAuthenticationService, AuthenticationService>();
+            services.AddTransient<Admin.Services.IAuthenticationService, Admin.Services.AuthenticationService>();
             services.AddTransient<IEmailQueueService, EmailQueueService>();
             services.AddTransient<IUserFeedbackService, UserFeedbackService>();
             services.AddTransient<IDashboardService, DashboardService>();
@@ -195,9 +195,40 @@ namespace HealthGateway.AdminWebClient
                 options.Cookie.Name = AuthorizationConstants.CookieName;
                 options.LoginPath = $"{basePath}{AuthorizationConstants.LoginPath}";
                 options.LogoutPath = $"{basePath}{AuthorizationConstants.LogoutPath}";
+                options.Events = new CookieAuthenticationEvents
+                {
+                    OnValidatePrincipal = context =>
+                    {
+                        return OnValidatePrincipal(context);
+                    },
+                };
             });
 
             this.ConfigureOpenId(builder);
+        }
+
+        private static Task OnValidatePrincipal(CookieValidatePrincipalContext context)
+        {
+            var now = DateTimeOffset.UtcNow;
+            var timeElapsed = now.Subtract(context.Properties.IssuedUtc!.Value);
+            var timeRemaining = context.Properties.ExpiresUtc!.Value.Subtract(now);
+            // if (timeElapsed > timeRemaining)
+            {
+                ClaimsIdentity? identity = context.Principal!.Identity as ClaimsIdentity;
+                if (identity != null)
+                {
+                    Claim? accessTokenClaim = identity.FindFirst("access_token");
+                    Claim? refreshTokenClaim = identity.FindFirst("refresh_token");
+                    string? refreshToken = refreshTokenClaim?.Value;
+                    if (refreshToken != null)
+                    {
+                    }
+                }
+
+                context.RejectPrincipal();
+            }
+
+            return Task.FromResult(0);
         }
 
         private void ConfigureOpenId(Microsoft.AspNetCore.Authentication.AuthenticationBuilder services)
